@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 1.8rem; font-weight: 700; color: #667eea; }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+        .panel::-webkit-scrollbar { width: 8px; }
+        .panel::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .panel::-webkit-scrollbar-thumb { background: #667eea; border-radius: 10px; }
+        
+        .form-group { 
+            margin-bottom: 2rem; 
+            position: relative;
+        }
+        label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.75rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s;
+            background: white;
+            color: #2d3748;
+        }
+        input:focus, textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Validation States */
+        input.valid, textarea.valid {
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.05);
+        }
+        input.invalid, textarea.invalid {
+            border-color: #f56565;
+            background: rgba(245, 101, 101, 0.05);
+        }
+        
+        .validation-icon {
+            position: absolute;
+            right: 1rem;
+            top: 3rem;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        input.valid ~ .validation-icon.check,
+        textarea.valid ~ .validation-icon.check {
+            opacity: 1;
+            color: #48bb78;
+        }
+        input.invalid ~ .validation-icon.cross,
+        textarea.invalid ~ .validation-icon.cross {
+            opacity: 1;
+            color: #f56565;
+        }
+        
+        .error-msg {
+            color: #f56565;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        input.invalid ~ .error-msg,
+        textarea.invalid ~ .error-msg {
+            display: block;
+        }
+        
+        textarea { min-height: 120px; resize: vertical; font-family: inherit; }
+        
+        .photo-upload {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px dashed #cbd5e0;
+        }
+        .photo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+        }
+        input[type="file"] { font-size: 0.95rem; }
+        input[type="file"]::file-selector-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-right: 1rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+            cursor: move;
+        }
+        .section-header:hover {
+            background: rgba(102, 126, 234, 0.05);
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: 8px;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .drag-handle {
+            font-size: 1.5rem;
+            cursor: grab;
+            color: #cbd5e0;
+        }
+        .section-header:hover .drag-handle {
+            color: #667eea;
+        }
+        
+        .section-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .toggle-visibility {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f7fafc;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-visibility:hover {
+            border-color: #667eea;
+        }
+        .toggle-visibility.hidden {
+            background: #fee;
+            border-color: #f56565;
+        }
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: #cbd5e0;
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        .toggle-visibility.active .toggle-switch {
+            background: #48bb78;
+        }
+        .toggle-visibility.active .toggle-switch::after {
+            left: 22px;
+        }
+        
+        .card {
+            margin-bottom: 1.5rem;
+            padding: 2rem;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .card.valid {
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.05);
+        }
+        .card.invalid {
+            border-color: #f56565;
+            background: rgba(245, 101, 101, 0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .btn-delete { 
+            background: #f56565; 
+            color: white; 
+        }
+        .btn-delete:hover { 
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+        .btn-add {
+            width: 100%;
+            padding: 1rem;
+            border: 2px dashed #667eea;
+            background: transparent;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-add:hover { 
+            background: #667eea; 
+            color: white;
+            transform: translateY(-2px);
+        }
+        .btn-generate {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-top: 2rem;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+        }
+        .btn-generate:hover:not(:disabled) { 
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+        .btn-generate:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed;
+        }
+        
+        .progress {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border: 2px solid #e2e8f0;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .progress-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .progress-percent {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left: 4px solid #48bb78; }
+        .toast.error { border-left: 4px solid #f56565; }
+        
+        .helper-text {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+        
+        .section-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+        .section-content.hidden {
+            max-height: 0 !important;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+        
+        @media print {
+            body * { visibility: hidden; }
+            .resume-preview, .resume-preview * { visibility: visible; }
+            .resume-preview { position: absolute; left: 0; top: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="toast" class="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">📄 Resume Builder Pro</div>
+            <div style="font-size: 0.9rem; color: #718096;">Create your professional resume</div>
+        </header>
+        
+        <div class="panel">
+            <div class="progress">
+                <div class="progress-header">
+                    <span class="progress-text">Completion Progress</span>
+                    <span id="progressPercent" class="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Upload Photo (Optional)</label>
+                <div class="photo-upload">
+                    <img id="photoPreview" class="photo-preview" style="display: none;" />
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+                <div class="helper-text">💡 Upload a professional photo (max 5MB)</div>
+            </div>
+
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="name" placeholder="John Doe" required>
+                <span class="validation-icon check">✓</span>
+                <span class="validation-icon cross">✗</span>
+                <div class="error-msg">Name must be at least 2 characters</div>
+                <div class="helper-text">💡 Enter your full name as it should appear on the resume</div>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" id="email" placeholder="john.doe@example.com" required>
+                <span class="validation-icon check">✓</span>
+                <span class="validation-icon cross">✗</span>
+                <div class="error-msg">Please enter a valid email address</div>
+                <div class="helper-text">💡 Use a professional email address</div>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="phone" placeholder="+1 234 567 8900" required>
+                <span class="validation-icon check">✓</span>
+                <span class="validation-icon cross">✗</span>
+                <div class="error-msg">Please enter a valid phone number (min 10 digits)</div>
+                <div class="helper-text">💡 Include country code for international applications</div>
+            </div>
+
+            <div class="form-group">
+                <label>Location *</label>
+                <input type="text" id="location" placeholder="New York, USA" required>
+                <span class="validation-icon check">✓</span>
+                <span class="validation-icon cross">✗</span>
+                <div class="error-msg">Location is required</div>
+                <div class="helper-text">💡 City and Country format recommended</div>
+            </div>
+
+            <div class="form-group">
+                <label>LinkedIn Profile (Optional)</label>
+                <input type="text" id="linkedin" placeholder="linkedin.com/in/johndoe">
+                <span class="validation-icon check">✓</span>
+                <span class="validation-icon cross">✗</span>
+                <div class="helper-text">💡 Add your LinkedIn URL to boost credibility</div>
+            </div>
+
+            <div class="form-group">
+                <label>Objective *</label>
+                <textarea id="objective" placeholder="A motivated professional seeking to leverage my skills in..." required></textarea>
+                <span class="validation-icon check">✓</span>
+                <span class="validation-icon cross">✗</span>
+                <div class="error-msg">Objective must be at least 20 characters</div>
+                <div class="helper-text">💡 Write a compelling 2-3 sentence summary of your career goals</div>
+            </div>
+
+            <div id="sectionsContainer"></div>
+
+            <button class="btn-generate" id="generateBtn" onclick="generateResume()">
+                📄 Generate Resume
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let sectionOrder = ['experience', 'education', 'skills', 'certificates', 'declaration'];
+        let formData = {
+            photo: null,
+            experiences: [],
+            education: [],
+            certificates: [],
+            professionalSkills: [],
+            personalSkills: [],
+            sectionVisibility: { 
+                experience: true, 
+                education: true, 
+                skills: true, 
+                certificates: true, 
+                declaration: true 
+            }
+        };
+
+        const validationRules = {
+            name: (v) => v.trim().length >= 2,
+            email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+            phone: (v) => /^[\d\s\-\+\(\)]{10,}$/.test(v),
+            location: (v) => v.trim().length >= 2,
+            objective: (v) => v.trim().length >= 20,
+            linkedin: (v) => true
+        };
+
+        function validateField(id, value) {
+            const input = document.getElementById(id);
+            const rule = validationRules[id];
+            if (!rule || !input) return true;
+            
+            const isValid = rule(value);
+            
+            if (value.length > 0) {
+                if (isValid) {
+                    input.classList.remove('invalid');
+                    input.classList.add('valid');
+                } else {
+                    input.classList.remove('valid');
+                    input.classList.add('invalid');
+                }
+            } else {
+                input.classList.remove('valid', 'invalid');
+            }
+            
+            updateProgress();
+            return isValid;
+        }
+
+        function updateProgress() {
+            const fields = ['name', 'email', 'phone', 'location', 'objective'];
+            let completed = 0;
+            
+            fields.forEach(field => {
+                const value = document.getElementById(field)?.value || '';
+                if (validationRules[field](value)) completed++;
+            });
+            
+            if (formData.professionalSkills.filter(s => s.trim()).length > 0) completed++;
+            if (formData.personalSkills.filter(s => s.trim()).length > 0) completed++;
+            
+            const total = fields.length + 2;
+            const percentage = Math.round((completed / total) * 100);
+            document.getElementById('progressPercent').textContent = percentage + '%';
+            document.getElementById('progressFill').style.width = percentage + '%';
+            
+            const hasExp = formData.experiences.filter(e => e.company && e.title).length > 0;
+            const hasEdu = formData.education.filter(e => e.institution && e.degree).length > 0;
+            document.getElementById('generateBtn').disabled = !(percentage === 100 && hasExp && hasEdu);
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            icon.textContent = type === 'success' ? '✓' : '✗';
+            document.getElementById('toastMsg').textContent = msg;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('photoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5000000) {
+                    showToast('Image size should be less than 5MB', 'error');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    formData.photo = e.target.result;
+                    document.getElementById('photoPreview').src = e.target.result;
+                    document.getElementById('photoPreview').style.display = 'block';
+                    showToast('Photo uploaded successfully!');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        ['name', 'email', 'phone', 'location', 'objective', 'linkedin'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', (e) => validateField(id, e.target.value));
+                el.addEventListener('blur', (e) => validateField(id, e.target.value));
+            }
+        });
+
+        const sectionTemplates = {
+            experience: { 
+                title: '💼 Work Experience', 
+                html: '<div id="experienceList"></div><button class="btn-add" onclick="addExperience()">➕ Add Work Experience</button>' 
+            },
+            education: { 
+                title: '🎓 Education', 
+                html: '<div id="educationList"></div><button class="btn-add" onclick="addEducation()">➕ Add Education</button>' 
+            },
+            skills: { 
+                title: '⚡ Skills', 
+                html: '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;"><div><label>Professional Skills *</label><div class="helper-text" style="margin-bottom:1rem;">💡 Add technical and job-specific skills</div><div id="professionalSkillsList"></div><button class="btn-add" onclick="addProfessionalSkill()">➕ Add Professional Skill</button></div><div><label>Personal Skills *</label><div class="helper-text" style="margin-bottom:1rem;">💡 Add soft skills and personal qualities</div><div id="personalSkillsList"></div><button class="btn-add" onclick="addPersonalSkill()">➕ Add Personal Skill</button></div></div>' 
+            },
+            certificates: { 
+                title: '🏆 Certificates', 
+                html: '<div id="certificateList"></div><button class="btn-add" onclick="addCertificate()">➕ Add Certificate</button>' 
+            },
+            declaration: { 
+                title: '📝 Declaration', 
+                html: '<div class="form-group"><div style="display:flex;gap:2rem;margin-bottom:1rem;"><label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;"><input type="radio" name="declarationType" id="useDefaultDeclaration" value="default" onchange="toggleDeclarationMode()" checked style="width:18px;height:18px;cursor:pointer;"> Default Declaration</label><label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;"><input type="radio" name="declarationType" id="useCustomDeclaration" value="custom" onchange="toggleDeclarationMode()" style="width:18px;height:18px;cursor:pointer;"> Custom Declaration</label></div><div class="helper-text" style="margin-bottom:1rem;">💡 Choose between standard or personalized declaration</div><div id="declarationContent"><div style="padding:1.5rem;background:#f7fafc;border:2px solid #e2e8f0;border-radius:10px;"><p style="font-size:1rem;color:#4a5568;line-height:1.7;"><strong>Default Declaration:</strong><br><br>I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.</p></div></div></div>' 
+            }
+        };
+
+        function toggleSectionVisibility(sectionId) {
+            formData.sectionVisibility[sectionId] = !formData.sectionVisibility[sectionId];
+            const isVisible = formData.sectionVisibility[sectionId];
+            
+            const toggle = document.querySelector(`[data-section="${sectionId}"] .toggle-visibility`);
+            const content = document.querySelector(`[data-section="${sectionId}"] .section-content`);
+            
+            if (toggle) {
+                if (isVisible) {
+                    toggle.classList.add('active');
+                    toggle.classList.remove('hidden');
+                } else {
+                    toggle.classList.remove('active');
+                    toggle.classList.add('hidden');
+                }
+            }
+            
+            if (content) {
+                if (isVisible) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            }
+            
+            showToast(`Section ${isVisible ? 'shown' : 'hidden'}`);
+        }
+
+        function renderSections() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+            
+            sectionOrder.forEach((sectionId, idx) => {
+                const section = sectionTemplates[sectionId];
+                const isVisible = formData.sectionVisibility[sectionId];
+                const div = document.createElement('div');
+                div.dataset.section = sectionId;
+                div.innerHTML = `
+                    <div class="section-header" draggable="true" data-index="${idx}">
+                        <h2 class="section-title">
+                            <span class="drag-handle">⋮⋮</span>
+                            ${section.title}
+                        </h2>
+                        <div class="section-controls">
+                            <div class="toggle-visibility ${isVisible ? 'active' : 'hidden'}" onclick="toggleSectionVisibility('${sectionId}')">
+                                <span style="font-size: 0.9rem; font-weight: 600;">${isVisible ? 'Visible' : 'Hidden'}</span>
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section-content ${!isVisible ? 'hidden' : ''}" style="max-height: 5000px;">
+                        ${section.html}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            attachDragListeners();
+            reattachListeners();
+        }
+
+        function reattachListeners() {
+            const declaration = document.getElementById('declaration');
+            if (declaration) {
+                declaration.addEventListener('input', updateProgress);
+            }
+            const defaultRadio = document.getElementById('useDefaultDeclaration');
+            const customRadio = document.getElementById('useCustomDeclaration');
+            if (defaultRadio) defaultRadio.addEventListener('change', toggleDeclarationMode);
+            if (customRadio) customRadio.addEventListener('change', toggleDeclarationMode);
+        }
+
+        function toggleDeclarationMode() {
+            const defaultRadio = document.getElementById('useDefaultDeclaration');
+            const customRadio = document.getElementById('useCustomDeclaration');
+            const content = document.getElementById('declarationContent');
+            
+            if (defaultRadio && customRadio && content) {
+                if (defaultRadio.checked) {
+                    content.innerHTML = '<div style="padding:1.5rem;background:#f7fafc;border:2px solid #e2e8f0;border-radius:10px;"><p style="font-size:1rem;color:#4a5568;line-height:1.7;"><strong>Default Declaration:</strong><br><br>I hereby declare that the information provided above is true and correct to the best of my knowledge and belief.</p></div>';
+                } else if (customRadio.checked) {
+                    content.innerHTML = '<textarea id="declaration" placeholder="Write your custom declaration statement..." style="width:100%;padding:1rem 1.25rem;border:2px solid #e2e8f0;border-radius:10px;font-size:1.1rem;min-height:120px;font-family:inherit;outline:none;transition:all 0.3s;"></textarea><div class="helper-text" style="margin-top:0.5rem;">💡 Write a personalized declaration statement</div>';
+                    const newDeclaration = document.getElementById('declaration');
+                    if (newDeclaration) {
+                        newDeclaration.addEventListener('input', updateProgress);
+                        newDeclaration.addEventListener('focus', function() {
+                            this.style.borderColor = '#667eea';
+                            this.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1)';
+                        });
+                        newDeclaration.addEventListener('blur', function() {
+                            this.style.borderColor = '#e2e8f0';
+                            this.style.boxShadow = 'none';
+                        });
+                    }
+                }
+            }
+        }
+
+        function attachDragListeners() {
+            let draggedEl = null;
+            document.querySelectorAll('.section-header').forEach(h => {
+                h.addEventListener('dragstart', function() { draggedEl = this; this.style.opacity = '0.5'; });
+                h.addEventListener('dragend', function() { this.style.opacity = '1'; });
+                h.addEventListener('dragover', function(e) { e.preventDefault(); });
+                h.addEventListener('drop', function() {
+                    if (draggedEl !== this) {
+                        const dragIdx = parseInt(draggedEl.dataset.index);
+                        const targetIdx = parseInt(this.dataset.index);
+                        const item = sectionOrder.splice(dragIdx, 1)[0];
+                        sectionOrder.splice(targetIdx, 0, item);
+                        renderSections();
+                        showToast('Section reordered successfully!');
+                    }
+                });
+            });
+        }
+
+        function addProfessionalSkill() {
+            formData.professionalSkills.push('');
+            renderProfessionalSkills();
+            showToast('Professional skill field added');
+        }
+
+        function renderProfessionalSkills() {
+            const list = document.getElementById('professionalSkillsList');
+            if (!list) return;
+            list.innerHTML = '';
+            formData.professionalSkills.forEach((skill, i) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'display:flex;gap:0.75rem;margin-bottom:1rem;';
+                div.innerHTML = `
+                    <input type="text" value="${skill}" 
+                           onchange="formData.professionalSkills[${i}]=this.value;updateProgress()" 
+                           placeholder="e.g., JavaScript, Python, Project Management" 
+                           style="flex:1;padding:1rem 1.25rem;font-size:1.1rem;">
+                    <button class="btn btn-delete" onclick="formData.professionalSkills.splice(${i},1);renderProfessionalSkills();updateProgress()">🗑️ Delete</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addPersonalSkill() {
+            formData.personalSkills.push('');
+            renderPersonalSkills();
+            showToast('Personal skill field added');
+        }
+
+        function renderPersonalSkills() {
+            const list = document.getElementById('personalSkillsList');
+            if (!list) return;
+            list.innerHTML = '';
+            formData.personalSkills.forEach((skill, i) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'display:flex;gap:0.75rem;margin-bottom:1rem;';
+                div.innerHTML = `
+                    <input type="text" value="${skill}" 
+                           onchange="formData.personalSkills[${i}]=this.value;updateProgress()" 
+                           placeholder="e.g., Leadership, Communication, Problem Solving" 
+                           style="flex:1;padding:1rem 1.25rem;font-size:1.1rem;">
+                    <button class="btn btn-delete" onclick="formData.personalSkills.splice(${i},1);renderPersonalSkills();updateProgress()">🗑️ Delete</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addExperience() {
+            formData.experiences.push({ company: '', title: '', joinDate: '', lastDate: '', description: '', visible: true });
+            renderExperiences();
+            showToast('Experience section added');
+        }
+
+        function validateExperience(i) {
+            const exp = formData.experiences[i];
+            const card = document.querySelector(`[data-exp="${i}"]`);
+            if (!card) return;
+            
+            const isValid = exp.company.trim() && exp.title.trim() && exp.joinDate.trim() && exp.lastDate.trim() && exp.description.trim();
+            const hasAny = exp.company || exp.title || exp.joinDate || exp.lastDate || exp.description;
+            
+            if (isValid) {
+                card.classList.add('valid');
+                card.classList.remove('invalid');
+            } else if (hasAny) {
+                card.classList.add('invalid');
+                card.classList.remove('valid');
+            } else {
+                card.classList.remove('valid', 'invalid');
+            }
+        }
+
+        function renderExperiences() {
+            const list = document.getElementById('experienceList');
+            if (!list) return;
+            list.innerHTML = '';
+            formData.experiences.forEach((exp, i) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.dataset.exp = i;
+                div.innerHTML = `
+                    <div class="card-header">
+                        <label style="font-size:1.1rem;">Experience #${i + 1}</label>
+                        <button class="btn btn-delete" onclick="formData.experiences.splice(${i},1);renderExperiences();updateProgress()">🗑️ Delete</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Company Name *</label>
+                        <input type="text" value="${exp.company}" 
+                               onchange="formData.experiences[${i}].company=this.value;validateExperience(${i});updateProgress()" 
+                               placeholder="Company name"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Job Title *</label>
+                        <input type="text" value="${exp.title}" 
+                               onchange="formData.experiences[${i}].title=this.value;validateExperience(${i});updateProgress()" 
+                               placeholder="Your position"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="text" value="${exp.joinDate}" 
+                               onchange="formData.experiences[${i}].joinDate=this.value;validateExperience(${i});updateProgress()" 
+                               placeholder="e.g., JAN 2024"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date *</label>
+                        <input type="text" value="${exp.lastDate}" 
+                               onchange="formData.experiences[${i}].lastDate=this.value;validateExperience(${i});updateProgress()" 
+                               placeholder="e.g., DEC 2025 or Present"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea onchange="formData.experiences[${i}].description=this.value;validateExperience(${i});updateProgress()" 
+                                  placeholder="Describe your responsibilities and achievements..."
+                                  style="padding:1rem 1.25rem;font-size:1.1rem;">${exp.description}</textarea>
+                        <div class="helper-text">💡 Use bullet points and highlight key achievements</div>
+                    </div>
+                `;
+                list.appendChild(div);
+                validateExperience(i);
+            });
+            updateProgress();
+        }
+
+        function addEducation() {
+            formData.education.push({ institution: '', degree: '', date: '', visible: true });
+            renderEducation();
+            showToast('Education section added');
+        }
+
+        function validateEducation(i) {
+            const edu = formData.education[i];
+            const card = document.querySelector(`[data-edu="${i}"]`);
+            if (!card) return;
+            
+            const isValid = edu.institution.trim() && edu.degree.trim() && edu.date.trim();
+            const hasAny = edu.institution || edu.degree || edu.date;
+            
+            if (isValid) {
+                card.classList.add('valid');
+                card.classList.remove('invalid');
+            } else if (hasAny) {
+                card.classList.add('invalid');
+                card.classList.remove('valid');
+            } else {
+                card.classList.remove('valid', 'invalid');
+            }
+        }
+
+        function renderEducation() {
+            const list = document.getElementById('educationList');
+            if (!list) return;
+            list.innerHTML = '';
+            formData.education.forEach((edu, i) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.dataset.edu = i;
+                div.innerHTML = `
+                    <div class="card-header">
+                        <label style="font-size:1.1rem;">Education #${i + 1}</label>
+                        <button class="btn btn-delete" onclick="formData.education.splice(${i},1);renderEducation();updateProgress()">🗑️ Delete</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Institution Name *</label>
+                        <input type="text" value="${edu.institution}" 
+                               onchange="formData.education[${i}].institution=this.value;validateEducation(${i});updateProgress()" 
+                               placeholder="College/University/School name"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Degree/Qualification *</label>
+                        <input type="text" value="${edu.degree}" 
+                               onchange="formData.education[${i}].degree=this.value;validateEducation(${i});updateProgress()" 
+                               placeholder="e.g., Bachelor of Science in Computer Science"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Graduation Date *</label>
+                        <input type="text" value="${edu.date}" 
+                               onchange="formData.education[${i}].date=this.value;validateEducation(${i});updateProgress()" 
+                               placeholder="e.g., MAY 2023"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                `;
+                list.appendChild(div);
+                validateEducation(i);
+            });
+            updateProgress();
+        }
+
+        function addCertificate() {
+            formData.certificates.push({ name: '', issuer: '', date: '', visible: true });
+            renderCertificates();
+            showToast('Certificate section added');
+        }
+
+        function renderCertificates() {
+            const list = document.getElementById('certificateList');
+            if (!list) return;
+            list.innerHTML = '';
+            formData.certificates.forEach((cert, i) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <div class="card-header">
+                        <label style="font-size:1.1rem;">Certificate #${i + 1}</label>
+                        <button class="btn btn-delete" onclick="formData.certificates.splice(${i},1);renderCertificates()">🗑️ Delete</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Certificate Name *</label>
+                        <input type="text" value="${cert.name}" 
+                               onchange="formData.certificates[${i}].name=this.value" 
+                               placeholder="Certificate title"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Issuing Organization *</label>
+                        <input type="text" value="${cert.issuer}" 
+                               onchange="formData.certificates[${i}].issuer=this.value" 
+                               placeholder="Organization name"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Issue Date *</label>
+                        <input type="text" value="${cert.date}" 
+                               onchange="formData.certificates[${i}].date=this.value" 
+                               placeholder="e.g., JAN 2025"
+                               style="padding:1rem 1.25rem;font-size:1.1rem;">
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function generateResume() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const location = document.getElementById('location').value;
+            const linkedin = document.getElementById('linkedin').value;
+            const objective = document.getElementById('objective').value;
+            const defaultRadio = document.getElementById('useDefaultDeclaration');
+            const customRadio = document.getElementById('useCustomDeclaration');
+            let declaration = '';
+            
+            if (defaultRadio && defaultRadio.checked) {
+                declaration = `I, ${name}, hereby declare that the information provided above is true and correct to the best of my knowledge and belief.`;
+            } else if (customRadio && customRadio.checked) {
+                declaration = document.getElementById('declaration')?.value || '';
+            }
+            
+            if (!validationRules.name(name) || !validationRules.email(email) || !validationRules.phone(phone) || !validationRules.location(location) || !validationRules.objective(objective)) {
+                showToast('Please fill all required fields correctly', 'error');
+                return;
+            }
+            
+            if (formData.experiences.length === 0) {
+                showToast('Please add at least one work experience', 'error');
+                return;
+            }
+            
+            if (formData.education.length === 0) {
+                showToast('Please add at least one education entry', 'error');
+                return;
+            }
+            
+            let sectionsHTML = '';
+            
+            sectionOrder.forEach(sectionId => {
+                if (!formData.sectionVisibility[sectionId]) return;
+                
+                if (sectionId === 'experience' && formData.experiences.length > 0) {
+                    let expHTML = '';
+                    formData.experiences.forEach(exp => {
+                        if (exp.visible && exp.company && exp.title) {
+                            // Split description by lines and create bullets
+                            const descriptions = exp.description.split('\n').filter(d => d.trim());
+                            const descHTML = descriptions.map(desc => `<div style="display:flex;align-items:start;margin-bottom:0.5rem;"><span style="width:6px;height:6px;background:#667eea;border-radius:50%;margin-right:0.75rem;margin-top:0.5rem;flex-shrink:0;"></span><span style="font-size:0.9rem;color:#4a5568;line-height:1.6;">${desc}</span></div>`).join('');
+                            expHTML += `<div style="margin-bottom:1.5rem;"><div style="display:flex;justify-content:space-between;margin-bottom:0.75rem;"><div><h3 style="font-size:1rem;font-weight:700;color:#2d3748;">${exp.company}</h3><p style="font-size:0.9rem;color:#667eea;font-style:italic;">${exp.title}</p></div><span style="font-size:0.85rem;color:#718096;font-weight:600;">${exp.joinDate} - ${exp.lastDate}</span></div><div>${descHTML}</div></div>`;
+                        }
+                    });
+                    if (expHTML) sectionsHTML += `<div style="margin-bottom:2rem;"><h2 style="font-size:1.3rem;font-weight:800;color:#667eea;margin-bottom:1.5rem;border-bottom:3px solid #667eea;padding-bottom:0.75rem;">WORK EXPERIENCE</h2>${expHTML}</div>`;
+                }
+                
+                if (sectionId === 'education' && formData.education.length > 0) {
+                    let eduHTML = '';
+                    formData.education.forEach(edu => {
+                        if (edu.visible && edu.institution && edu.degree) {
+                            eduHTML += `<div style="margin-bottom:1.5rem;"><div style="display:flex;justify-content:space-between;"><div><h3 style="font-size:1rem;font-weight:700;color:#2d3748;">${edu.institution}</h3><p style="font-size:0.9rem;color:#667eea;font-style:italic;">${edu.degree}</p></div><span style="font-size:0.85rem;color:#718096;font-weight:600;">${edu.date}</span></div></div>`;
+                        }
+                    });
+                    if (eduHTML) sectionsHTML += `<div style="margin-bottom:2rem;"><h2 style="font-size:1.3rem;font-weight:800;color:#667eea;margin-bottom:1.5rem;border-bottom:3px solid #667eea;padding-bottom:0.75rem;">EDUCATION</h2>${eduHTML}</div>`;
+                }
+                
+                if (sectionId === 'skills') {
+                    let skillsHTML = '';
+                    let profSkillsHTML = '';
+                    let persSkillsHTML = '';
+                    
+                    if (formData.professionalSkills.filter(s => s.trim()).length > 0) {
+                        const skills = formData.professionalSkills.filter(s => s.trim()).map(s => `<div style="display:flex;align-items:center;margin-bottom:0.5rem;"><span style="width:8px;height:8px;background:#667eea;border-radius:50%;margin-right:0.75rem;flex-shrink:0;"></span><span style="font-size:0.9rem;color:#2d3748;">${s}</span></div>`).join('');
+                        profSkillsHTML = `<div><h3 style="font-size:1.1rem;font-weight:700;color:#667eea;margin-bottom:1rem;">Professional Skills</h3><div>${skills}</div></div>`;
+                    }
+                    
+                    if (formData.personalSkills.filter(s => s.trim()).length > 0) {
+                        const skills = formData.personalSkills.filter(s => s.trim()).map(s => `<div style="display:flex;align-items:center;margin-bottom:0.5rem;"><span style="width:8px;height:8px;background:#667eea;border-radius:50%;margin-right:0.75rem;flex-shrink:0;"></span><span style="font-size:0.9rem;color:#2d3748;">${s}</span></div>`).join('');
+                        persSkillsHTML = `<div><h3 style="font-size:1.1rem;font-weight:700;color:#667eea;margin-bottom:1rem;">Personal Skills</h3><div>${skills}</div></div>`;
+                    }
+                    
+                    if (profSkillsHTML || persSkillsHTML) {
+                        skillsHTML = `<div style="margin-bottom:2rem;"><h2 style="font-size:1.3rem;font-weight:800;color:#667eea;margin-bottom:1.5rem;border-bottom:3px solid #667eea;padding-bottom:0.75rem;">SKILLS</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">${profSkillsHTML}${persSkillsHTML}</div></div>`;
+                        sectionsHTML += skillsHTML;
+                    }
+                }
+                
+                if (sectionId === 'certificates' && formData.certificates.length > 0) {
+                    let certHTML = '';
+                    formData.certificates.forEach(cert => {
+                        if (cert.visible && cert.name && cert.issuer) {
+                            certHTML += `<div style="margin-bottom:1.5rem;"><div style="display:flex;justify-content:space-between;"><div><h3 style="font-size:1rem;font-weight:700;color:#2d3748;">${cert.name}</h3><p style="font-size:0.9rem;color:#667eea;font-style:italic;">${cert.issuer}</p></div><span style="font-size:0.85rem;color:#718096;font-weight:600;">${cert.date}</span></div></div>`;
+                        }
+                    });
+                    if (certHTML) sectionsHTML += `<div style="margin-bottom:2rem;"><h2 style="font-size:1.3rem;font-weight:800;color:#667eea;margin-bottom:1.5rem;border-bottom:3px solid #667eea;padding-bottom:0.75rem;">CERTIFICATES</h2>${certHTML}</div>`;
+                }
+                
+                if (sectionId === 'declaration' && declaration) {
+                    sectionsHTML += `<div style="margin-bottom:2rem;"><h2 style="font-size:1.3rem;font-weight:800;color:#667eea;margin-bottom:1.5rem;border-bottom:3px solid #667eea;padding-bottom:0.75rem;">DECLARATION</h2><p style="font-size:0.9rem;color:#4a5568;line-height:1.7;font-style:italic;">${declaration}</p><br><p style="font-size:0.9rem;color:#4a5568;font-weight:600;">Signature: ________________</p><p style="font-size:0.9rem;color:#4a5568;margin-top:0.5rem;">Name: ${name}</p></div>`;
+                }
+            });
+            
+            const resumeWindow = window.open('', '_blank', 'width=1200,height=800');
+            resumeWindow.document.write(`<!DOCTYPE html><html><head><title>Resume - ${name}</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f7fafc;padding:2rem;}@media print{body{background:white;padding:0;}@page{margin:1cm;}}.container{max-width:900px;margin:0 auto;background:white;padding:3rem;box-shadow:0 8px 30px rgba(0,0,0,0.12);border-radius:12px;}.header{display:flex;justify-content:space-between;align-items:start;border-bottom:5px solid #667eea;padding-bottom:2rem;margin-bottom:2.5rem;}.name{font-size:2.2rem;font-weight:800;color:#667eea;margin-bottom:0.75rem;}.objective{font-size:0.95rem;color:#4a5568;line-height:1.7;margin-bottom:1.25rem;max-width:650px;}.contact{display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;color:#718096;}.photo{width:120px;height:120px;border-radius:50%;object-fit:cover;border:5px solid #667eea;box-shadow:0 4px 12px rgba(0,0,0,0.1);}.buttons{display:flex;gap:1rem;margin-top:2.5rem;justify-content:center;}.btn{padding:1rem 2rem;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:1.05rem;transition:all 0.3s;}.btn-back{background:#e2e8f0;color:#4a5568;}.btn-back:hover{background:#cbd5e0;}.btn-download{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;box-shadow:0 4px 12px rgba(102,126,234,0.4);}.btn-download:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(102,126,234,0.5);}@media print{.buttons{display:none;}}</style></head><body><div class="container"><div class="header"><div><h1 class="name">${name}</h1><p class="objective">${objective}</p><div class="contact"><span>📧 ${email}</span><span>📱 ${phone}</span>${linkedin ? `<span>🔗 ${linkedin}</span>` : ''}<span>📍 ${location}</span></div></div>${formData.photo ? `<img src="${formData.photo}" class="photo"/>` : ''}</div>${sectionsHTML}</div><div class="buttons"><button class="btn btn-back" onclick="window.close()">← Back to Editor</button><button class="btn btn-download" onclick="window.print()">⬇ Download as PDF</button></div></body></html>`);
+            resumeWindow.document.close();
+            showToast('Resume generated successfully!');
+        }
+
+        renderSections();
+        if (formData.professionalSkills.length === 0) formData.professionalSkills = ['', ''];
+        if (formData.personalSkills.length === 0) formData.personalSkills = ['', ''];
+    </script>
+</body>
+</html>
