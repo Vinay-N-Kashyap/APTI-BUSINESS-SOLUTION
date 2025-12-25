@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration Form</title>
+    <link rel="stylesheet" href="fetch.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👤 User Registration</h1>
+            <p>Fill in your details to create an account</p>
+        </div>
+
+        <div class="form-card">
+            <div class="success-message" id="successMessage">
+                ✅ Registration Successful! Your account has been created and data saved to JSON.
+            </div>
+
+            <form id="userForm" onsubmit="handleSubmit(event)">
+                
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <div class="section-title">📝 Personal Information</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Full Name</label>
+                            <input type="text" class="form-input" id="fullName" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Email</label>
+                            <input type="email" class="form-input" id="email" placeholder="email@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Phone Number</label>
+                            <input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Date of Birth</label>
+                            <input type="date" class="form-input" id="dob" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Gender</label>
+                            <select class="form-select" id="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Information -->
+                <div class="form-section">
+                    <div class="section-title">🏠 Address Information</div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label required">Address Line 1</label>
+                        <input type="text" class="form-input" id="address1" placeholder="House/Flat No., Building Name, Street" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Address Line 2</label>
+                        <input type="text" class="form-input" id="address2" placeholder="Locality, Landmark (optional)">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">City</label>
+                            <select class="form-select" id="city" required>
+                                <option value="">Select City</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Ahmedabad">Ahmedabad</option>
+                                <option value="Jaipur">Jaipur</option>
+                                <option value="Surat">Surat</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">State</label>
+                            <select class="form-select" id="state" required>
+                                <option value="">Select State</option>
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="West Bengal">West Bengal</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">PIN Code</label>
+                            <input type="text" class="form-input" id="pin" placeholder="Enter 6-digit PIN code" maxlength="6" pattern="[0-9]{6}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Post Office</label>
+                            <input type="text" class="form-input" id="postcard" placeholder="Enter post office name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="form-label required">Area</label>
+                            <div class="multi-select-container">
+                                <div class="multi-select-display" id="areaDisplay" onclick="toggleDropdown('area')">
+                                    <span class="multi-select-placeholder">Select areas</span>
+                                </div>
+                                <div class="multi-select-dropdown" id="areaDropdown"></div>
+                            </div>
+                            <div class="helper-text">Click to select multiple areas</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Information -->
+                <div class="form-section">
+                    <div class="section-title">🔐 Account Information</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Status</label>
+                            <select class="form-select" id="status" required>
+                                <option value="">Select Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Suspended">Suspended</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Type</label>
+                            <select class="form-select" id="type" required>
+                                <option value="">Select Type</option>
+                                <option value="Individual">Individual</option>
+                                <option value="Agency">Agency</option>
+                                <option value="Sub Agent">Sub Agent</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Onboarding Date</label>
+                            <input type="date" class="form-input" id="onboarding" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="form-section">
+                    <div class="section-title">⚙️ Preferences</div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label">Preferred Travel States</label>
+                        <div class="multi-select-container">
+                            <div class="multi-select-display" id="travelStatesDisplay" onclick="toggleDropdown('travelStates')">
+                                <span class="multi-select-placeholder">Select preferred travel states</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="travelStatesDropdown"></div>
+                        </div>
+                        <div class="helper-text">Click to select multiple states</div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Languages Known</label>
+                        <div class="multi-select-container">
+                            <div class="multi-select-display" id="languagesDisplay" onclick="toggleDropdown('languages')">
+                                <span class="multi-select-placeholder">Select languages</span>
+                            </div>
+                            <div class="multi-select-dropdown" id="languagesDropdown"></div>
+                        </div>
+                        <div class="helper-text">Click to select multiple languages</div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="reset" class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
+                    <button type="button" class="btn btn-secondary" onclick="downloadAllData()">Download All Data</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearAllData()" style="background: #dc3545;">Clear All Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="fetch.js">
+        // Data for multi-select dropdowns
+       
+    </script>
+</body>
+</html>
